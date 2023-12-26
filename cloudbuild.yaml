@@ -1,0 +1,29 @@
+steps:
+# Build the container image
+- name: 'gcr.io/cloud-builders/docker'
+  # dir: 'fastapi_svelte'
+  args: ['build', '-t', 'europe-west9-docker.pkg.dev/$PROJECT_ID/my-docker-image-repo/yanisbensadok:$COMMIT_SHA', '.']
+# Push the container image to Container Registry
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'europe-west9-docker.pkg.dev/$PROJECT_ID/my-docker-image-repo/yanisbensadok:$COMMIT_SHA']
+# Deploy container image to Cloud Run
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: gcloud
+  args:
+    - 'beta'
+    - 'run'
+    - 'deploy'
+    - 'yanisbensadok'
+    - '--image'
+    - 'europe-west9-docker.pkg.dev/$PROJECT_ID/my-docker-image-repo/yanisbensadok:$COMMIT_SHA'
+    - '--region'
+    - 'europe-west9'
+    - '--platform'
+    - 'managed'
+    - '--min-instances'
+    - '0'
+    - '--max-instances'
+    - '1'
+    - '--allow-unauthenticated'
+images:
+- 'europe-west9-docker.pkg.dev/$PROJECT_ID/my-docker-image-repo/yanisbensadok'
